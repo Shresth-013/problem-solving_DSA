@@ -1,61 +1,56 @@
-class Solution {
+public class Solution {
+    private int partition(int[] nums, int left, int right) {
+        int mid = (left + right) >> 1;
+        swap(nums, mid, left + 1);
 
-    public int findKthLargest(int[] nums, int k) {
+        if (nums[left] < nums[right])
+            swap(nums, left, right);
+        if (nums[left + 1] < nums[right])
+            swap(nums, left + 1, right);
+        if (nums[left] < nums[left + 1])
+            swap(nums, left, left + 1);
 
-        int targetIndex = nums.length - k;
+        int pivot = nums[left + 1];
+        int i = left + 1;
+        int j = right;
 
+        while (true) {
+            while (nums[++i] > pivot);
+            while (nums[--j] < pivot);
+            if (i > j) break;
+            swap(nums, i, j);
+        }
+
+        nums[left + 1] = nums[j];
+        nums[j] = pivot;
+        return j;
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+    private int quickSelect(int[] nums, int k) {
         int left = 0;
         int right = nums.length - 1;
 
-        while (left <= right) {
-
-            int pivotIndex = partition(nums, left, right);
-
-            if (pivotIndex == targetIndex) {
-                return nums[pivotIndex];
+        while (true) {
+            if (right <= left + 1) {
+                if (right == left + 1 && nums[right] > nums[left])
+                    swap(nums, left, right);
+                return nums[k];
             }
 
-            else if (pivotIndex < targetIndex) {
-                left = pivotIndex + 1;
-            }
+            int j = partition(nums, left, right);
 
-            else {
-                right = pivotIndex - 1;
-            }
+            if (j >= k) right = j - 1;
+            if (j <= k) left = j + 1;
         }
-
-        return -1;
     }
 
-
-    private int partition(int[] nums, int left, int right) {
-
-        int pivot = nums[right];
-
-        int i = left;
-
-        for (int j = left; j < right; j++) {
-
-            if (nums[j] < pivot) {
-
-                swap(nums, i, j);
-
-                i++;
-            }
-        }
-
-        swap(nums, i, right);
-
-        return i;
-    }
-
-
-    private void swap(int[] nums, int i, int j) {
-
-        int temp = nums[i];
-
-        nums[i] = nums[j];
-
-        nums[j] = temp;
+    public int findKthLargest(int[] nums, int k) {
+        return quickSelect(nums, k - 1);
     }
 }
